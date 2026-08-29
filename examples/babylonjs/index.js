@@ -35,6 +35,7 @@ let params = {
     IBL: true,
     LIGHTS: false, // The default is to use IBL instead of lights
     BLOOM: true,
+    OPENPBR: false,
     DEBUG: false,
     PHYSICS_DEBUG: true,
     VARIANT: DEFAULT_NAME,
@@ -50,6 +51,7 @@ const fileInput = document.getElementById("fileInput");
 
 let currentScene = null;
 let currentGui = null;
+let currentModelSource = null;
 let currentObjectUrls = [];
 let activeLoadToken = 0;
 
@@ -355,6 +357,11 @@ let createScene = function(engine, modelSource) {
     let guiIbl = gui.add(params, 'IBL').name('IBL');
     let guiLights = gui.add(params, 'LIGHTS').name('Lights');
     let guiBloom = gui.add(params, 'BLOOM').name('Bloom');
+    // Load the model as OpenPBRMaterial instead of PBRMaterial. The loader maps
+    // some extensions only through its OpenPBR adapter - KHR_materials_volume_scatter
+    // for instance keeps multiscatterColorFactor there, while the PBRMaterial path
+    // drops it - so the model has to be reloaded when this changes.
+    let guiOpenPbr = gui.add(params, 'OPENPBR').name('OpenPBR');
     const tonemaps = ["None", "Standard", "ACES", "PBR Neutral"];
     let guiTonemap = gui.add(params, 'TONEMAP', tonemaps).name('Tonemap');
     let guiDebug = gui.add(params, 'DEBUG').name('Debug');
@@ -380,6 +387,11 @@ let createScene = function(engine, modelSource) {
 
     BABYLON.SceneLoader.OnPluginActivatedObservable.addOnce(function (loader) {
         loader.animationStartMode = modelSource.allAnimations ? BABYLON.GLTFLoaderAnimationStartMode.ALL : BABYLON.GLTFLoaderAnimationStartMode.FIRST;
+        // Materials are built while the model loads, so this has to be set here
+        // rather than toggled on the scene afterwards. See the OpenPBR GUI entry.
+        if ("useOpenPBR" in loader) {
+            loader.useOpenPBR = params.OPENPBR;
+        }
 
         if (!loader.onExtensionLoadedObservable) {
             return;
@@ -669,6 +681,12 @@ let createScene = function(engine, modelSource) {
             }
         });
 
+        guiOpenPbr.onChange(function () {
+            if (currentModelSource) {
+                loadSceneFromSource(currentModelSource);
+            }
+        });
+
         guiTonemap.onChange(function (value) {
           if (value == "None") {
             scene.imageProcessingConfiguration.toneMappingEnabled = false;
@@ -801,6 +819,9 @@ let createScene = function(engine, modelSource) {
 };
 
 async function loadSceneFromSource(modelSource) {
+    // The OpenPBR toggle reloads the very source the current scene came from,
+    // so its object URLs are still in use and must survive this pass.
+    const isReload = modelSource === currentModelSource;
     const loadToken = ++activeLoadToken;
     showDropZone("Loading model...");
 
@@ -808,7 +829,7 @@ async function loadSceneFromSource(modelSource) {
         const nextScene = await createScene(engine, modelSource);
         if (loadToken !== activeLoadToken) {
             nextScene.dispose();
-            if (modelSource.objectUrls) {
+            if (modelSource.objectUrls && !isReload) {
                 modelSource.objectUrls.forEach(function(url) {
                     URL.revokeObjectURL(url);
                 });
@@ -821,6 +842,7 @@ async function loadSceneFromSource(modelSource) {
 
         currentScene = nextScene;
         currentGui = nextScene._viewerGui || null;
+        currentModelSource = modelSource;
 
         if (previousGui) {
             previousGui.destroy();
@@ -829,12 +851,14 @@ async function loadSceneFromSource(modelSource) {
             previousScene.dispose();
         }
 
-        revokeCurrentObjectUrls();
-        currentObjectUrls = modelSource.objectUrls || [];
+        if (!isReload) {
+            revokeCurrentObjectUrls();
+            currentObjectUrls = modelSource.objectUrls || [];
+        }
         hideDropZone();
     } catch (error) {
         console.error(error);
-        if (modelSource.objectUrls) {
+        if (modelSource.objectUrls && !isReload) {
             modelSource.objectUrls.forEach(function(url) {
                 URL.revokeObjectURL(url);
             });
