@@ -54,7 +54,7 @@ const PHYSICS_FPS = 60;
 // Lite injects draco_decoder.js / meshopt_decoder.js itself, lazily, the first time an
 // asset actually uses KHR_draco_mesh_compression or EXT_meshopt_compression, and resolves
 // draco_decoder.wasm against the same base. Point both at our local copies.
-const DECODER_BASE_URL = new URL("../../libs/babylonjs/9.4.1/", import.meta.url).href;
+const DECODER_BASE_URL = new URL("../../libs/babylonjs/dev/", import.meta.url).href;
 setDracoBaseUrl(DECODER_BASE_URL);
 setMeshoptBaseUrl(DECODER_BASE_URL);
 
