@@ -4,6 +4,8 @@ var TutorialWipExtensionTestModelIndex = {};
 
 TutorialWipExtensionTestModelIndex.List = [
     {category:'tutorialModels', name:'MarblesForever', screenshot:'screenshot/screenshot.jpg', scale:2},
+    {category:'tutorialModels', name:'ScatteringSkull', screenshot:'screenshot/screenshot.jpg', scale:6},
+    {category:'tutorialModels', name:'TrafficCone', screenshot:'screenshot/screenshot.jpg', scale:2},
 ];
 
 TutorialWipExtensionTestModelIndex.getScreenshot = function(name) {
