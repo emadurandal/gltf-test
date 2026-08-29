@@ -499,6 +499,7 @@ function makeTutorialExtensionTestModelLinks() {
                      || modelName == 'ClearCoatTest'
                      || modelName == 'ClearcoatWicker'
                      || modelName == 'CommercialRefrigerator'
+                     || modelName == 'CubeVisibility'
                      || modelName == 'DiffuseTransmissionPlant'
                      || modelName == 'DiffuseTransmissionTeacup'
                      || modelName == 'DiffuseTransmissionTest'
@@ -517,9 +518,11 @@ function makeTutorialExtensionTestModelLinks() {
                      || modelName == 'IridescentDishWithOlives'
                      || modelName == 'Lights'
                      || modelName == 'LightsPunctualLamp'
+                     || modelName == 'LightVisibility'
                      || modelName == 'MaterialsVariantsChair'
                      || modelName == 'MaterialsVariantsShoe'
                      || modelName == 'MosquitoInAmber'
+                     || modelName == 'NodeVisibilityTest'
                      || modelName == 'PointLightIntensityTest'
                      || modelName == 'PotOfCoals'
                      || modelName == 'PotOfCoalsAnimationPointer'
@@ -536,6 +539,7 @@ function makeTutorialExtensionTestModelLinks() {
                      || modelName == 'TransmissionTest'
                      || modelName == 'TransmissionThinwallTestGrid'
                      || modelName == 'UnlitTest'
+                     || modelName == 'USDShaderBallForGltf'
                      || modelName == 'XmpMetadataRoundedCube' ) {
                 td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF', scale));
                 td.appendChild(document.createElement('br'));
@@ -568,7 +572,8 @@ function makeTutorialExtensionTestModelLinks() {
                 td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF-KTX', scale));
                 td.appendChild(document.createElement('br'));
                 td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF-WEBP', scale));
-            } else if (modelName == 'DragonAttenuation') {
+            } else if (modelName == 'DragonAttenuation'
+                    || modelName == 'MeshoptCubeTest') {
                 td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF', scale));
                 td.appendChild(document.createElement('br'));
                 td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF-Meshopt', scale));
@@ -631,9 +636,13 @@ function makeTutorialWipExtensionTestModelLinks() {
             let td = document.createElement('td');
             td.setAttribute('width', '100');
 
-            td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF', scale));
-            td.appendChild(document.createElement('br'));
-            td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF-Binary', scale));
+            if ( modelName == 'TrafficCone' ) {
+                td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF', scale));
+            } else {
+                td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF', scale));
+                td.appendChild(document.createElement('br'));
+                td.appendChild(createlink(engines[i].name, 'tutorialModels', modelName, 'glTF-Binary', scale));
+            }
 
             tr.appendChild(td);
         }
