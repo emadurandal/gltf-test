@@ -7,3 +7,4 @@
 # Keep vendored three.js JavaScript files in CRLF on Windows worktrees.
 libs/three.js/dev/**/*.js text eol=crlf
 libs/three.js/r184/**/*.js text eol=crlf
+libs/three.js/r186/**/*.js text eol=crlf
