@@ -28,7 +28,7 @@ function getInitialModelInfo() {
     return modelInfo;
 }
 
-const pcRoot = '../../libs/playcanvas/v2.14.2';
+const pcRoot = '../../libs/playcanvas/v2.22.1';
 const DEFAULT_NAME = "[default]";
 const initialModelInfo = getInitialModelInfo();
 const dropZone = document.getElementById('dropZone');
@@ -1587,13 +1587,23 @@ function _drawWireSphereLocal(app, mat, radius, color) {
     app.drawLines(pts, colors, false);
 }
 
+// AppBase#drawWireAlignedBox became a no-op in PlayCanvas 2.22, WireRenderer replaces it.
+let _wireRenderer = null;
+function _getWireRenderer(app) {
+    if (!_wireRenderer || _wireRenderer.app !== app) {
+        _wireRenderer = new pc.WireRenderer(app);
+    }
+    return _wireRenderer;
+}
+
 function _drawWireBoxLocal(app, mat, hx, hy, hz, color) {
     // Use the engine helper which accepts a transform.
-    app.drawWireAlignedBox(
-        new pc.Vec3(-hx, -hy, -hz),
-        new pc.Vec3( hx,  hy,  hz),
-        color, false, undefined, mat
-    );
+    const wire = _getWireRenderer(app);
+    wire.color = color;
+    wire.depthTest = false;
+    wire.transform = mat;
+    wire.boxMinMax(new pc.Vec3(-hx, -hy, -hz), new pc.Vec3( hx,  hy,  hz));
+    wire.transform = null;
 }
 
 function _drawWireCylinderLocal(app, mat, radius, halfHeight, axis, color) {
